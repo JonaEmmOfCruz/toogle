@@ -2,13 +2,18 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Celestial Theme Switcher</title>
+  <title>Cosmos UI Pro - Theme Switcher Avanzado</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * { box-sizing: border-box; }
+    /* Reset y configuración global */
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
 
+    /* Variables CSS para tema oscuro (por defecto) */
     :root {
-      /* Tema Oscuro - Espacio Profundo */
       --bg: #020617;
       --bg-gradient: radial-gradient(circle at bottom, #1e1b4b, #020617);
       --fg: #f8fafc;
@@ -18,10 +23,12 @@
       --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
       --sun-opacity: 0;
       --stars-opacity: 1;
+      --aurora-opacity: 0.5;
+      --cinema-mode: 0;
     }
 
+    /* Variables CSS para tema claro */
     body.light {
-      /* Tema Claro - Día Despejado */
       --bg: #bae6fd;
       --bg-gradient: linear-gradient(to bottom, #7dd3fc, #bae6fd);
       --fg: #0f172a;
@@ -31,11 +38,21 @@
       --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
       --sun-opacity: 1;
       --stars-opacity: 0;
+      --aurora-opacity: 0;
     }
 
+    /* Modo cinema (oscuro total) */
+    body.cinema {
+      --bg: #000000;
+      --bg-gradient: radial-gradient(circle at 30% 30%, #111827, #000000);
+      --card: rgba(0, 0, 0, 0.8);
+      --border: rgba(255, 255, 255, 0.05);
+      --cinema-mode: 1;
+    }
+
+    /* Estilos base del body */
     body {
-      margin: 0;
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: var(--bg);
       background-image: var(--bg-gradient);
       color: var(--fg);
@@ -49,22 +66,31 @@
       position: relative;
     }
 
-    /* CAPA DE ESTRELLAS (Modo Oscuro) */
+    /* Estrellas para modo nocturno */
     body::before {
       content: "";
       position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      /* Generamos puntos blancos pequeños aleatorios con box-shadow */
-      box-shadow: 
-        20vw 10vh 1px #fff, 80vw 20vh 2px #fff, 40vw 30vh 1px #fff,
-        10vw 60vh 1px #fff, 90vw 80vh 2px #fff, 50vw 90vh 1px #fff,
-        30vw 40vh 1px #fff, 70vw 50vh 1.5px #fff, 15vw 85vh 1px #fff;
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%;
+      background-image: 
+        radial-gradient(1px 1px at 20% 10%, white 100%, transparent),
+        radial-gradient(1px 1px at 80% 20%, white 100%, transparent),
+        radial-gradient(2px 2px at 40% 30%, white 100%, transparent),
+        radial-gradient(1px 1px at 10% 60%, white 100%, transparent),
+        radial-gradient(2px 2px at 90% 80%, white 100%, transparent),
+        radial-gradient(1px 1px at 50% 90%, white 100%, transparent),
+        radial-gradient(1px 1px at 30% 40%, white 100%, transparent),
+        radial-gradient(1.5px 1.5px at 70% 50%, white 100%, transparent),
+        radial-gradient(1px 1px at 15% 85%, white 100%, transparent);
+      background-repeat: no-repeat;
       opacity: var(--stars-opacity);
       transition: opacity 1s ease;
       z-index: 0;
     }
 
-    /* EL SOL (Modo Claro) */
+    /* Sol para modo diurno */
     .sun {
       position: absolute;
       top: -50px;
@@ -80,6 +106,84 @@
       box-shadow: 0 0 100px #f59e0b;
     }
 
+    /* Aurora boreal solo en modo noche */
+    .aurora {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 30%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: calc(var(--stars-opacity) * var(--aurora-opacity));
+      mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+    }
+
+    .aurora-layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      filter: blur(40px);
+      animation: aurora-flow 15s infinite alternate ease-in-out;
+    }
+
+    .aurora-layer:nth-child(1) {
+      background: linear-gradient(90deg, 
+        rgba(59, 130, 246, 0.3),
+        rgba(147, 51, 234, 0.3),
+        rgba(236, 72, 153, 0.3));
+      animation-delay: -5s;
+    }
+
+    .aurora-layer:nth-child(2) {
+      background: linear-gradient(90deg,
+        rgba(34, 197, 94, 0.2),
+        rgba(59, 130, 246, 0.2),
+        rgba(168, 85, 247, 0.2));
+      animation-delay: -10s;
+    }
+
+    @keyframes aurora-flow {
+      0% {
+        transform: translateX(-10%) scale(1.1);
+        opacity: 0.6;
+      }
+      100% {
+        transform: translateX(10%) scale(0.9);
+        opacity: 0.8;
+      }
+    }
+
+    /* Efecto de transición cósmica */
+    .cosmic-transition {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, 
+        rgba(56, 189, 248, 0.8) 0%,
+        transparent 70%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 20;
+      transition: opacity 0.5s ease;
+    }
+
+    /* Partículas flotantes */
+    .particles-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: var(--stars-opacity);
+    }
+
+    /* Tarjeta principal */
     .card {
       position: relative;
       background: var(--card);
@@ -88,7 +192,7 @@
       border-radius: 32px;
       padding: 2.5rem;
       width: 100%;
-      max-width: 400px;
+      max-width: 450px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
       text-align: center;
@@ -96,9 +200,23 @@
       transition: transform 0.3s ease;
     }
 
-    h1 { margin: 0 0 0.5rem; font-size: 1.8rem; font-weight: 800; }
-    .subtitle { margin: 0 0 2rem; font-size: 0.95rem; opacity: 0.8; }
+    .card:hover {
+      transform: translateY(-5px);
+    }
 
+    h1 { 
+      margin: 0 0 0.5rem; 
+      font-size: 1.8rem; 
+      font-weight: 800; 
+    }
+    
+    .subtitle { 
+      margin: 0 0 2rem; 
+      font-size: 0.95rem; 
+      opacity: 0.8; 
+    }
+
+    /* Contenedor del toggle */
     .toggle-container {
       background: rgba(255, 255, 255, 0.15);
       padding: 1.5rem;
@@ -115,6 +233,7 @@
       color: var(--fg);
     }
 
+    /* Switch principal */
     .switch {
       position: relative;
       width: 75px;
@@ -143,34 +262,55 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
       box-shadow: 0 0 20px var(--accent);
       font-size: 16px;
     }
 
-    body.light .knob { transform: translateX(35px); }
-    .knob::before { content: '🌙'; }
-    body.light .knob::before { content: '☀️'; }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px var(--accent); }
+      50% { box-shadow: 0 0 40px var(--accent), 0 0 60px var(--accent); }
+    }
 
-    /* Indicador de teclas de acceso rápido */
+    .switch:active .knob {
+      animation: pulse-glow 0.3s ease;
+    }
+
+    body.light .knob { 
+      transform: translateX(35px); 
+    }
+    
+    .knob::before { 
+      content: '🌙'; 
+    }
+    
+    body.light .knob::before { 
+      content: '☀️'; 
+    }
+
+    /* Atajos de teclado visuales */
     .keyboard-shortcuts {
       display: flex;
       justify-content: center;
       gap: 1rem;
       margin-top: 1rem;
+      flex-wrap: wrap;
     }
 
     .key {
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 12px;
       padding: 0.5rem 0.75rem;
       font-size: 0.8rem;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 0.25rem;
+      gap: 0.5rem;
       transition: all 0.2s ease;
+      cursor: pointer;
+      min-width: 80px;
+      justify-content: center;
     }
 
     .key:hover {
@@ -179,49 +319,267 @@
       transform: translateY(-2px);
     }
 
+    .key:active {
+      transform: scale(0.95);
+    }
+
     .key kbd {
       background: rgba(255, 255, 255, 0.2);
       padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      font-family: monospace;
+      border-radius: 6px;
+      font-family: 'SF Mono', Monaco, monospace;
       font-weight: bold;
-      min-width: 20px;
+      min-width: 24px;
       text-align: center;
+      font-size: 0.9em;
     }
 
-    /* Notificación de tecla presionada */
-    .key-notification {
+    /* Notificaciones */
+    .notification-container {
       position: fixed;
-      bottom: 20px;
+      top: 20px;
       right: 20px;
-      background: var(--accent);
-      color: var(--bg);
-      padding: 0.75rem 1.5rem;
-      border-radius: 12px;
-      font-weight: 600;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
       z-index: 1000;
       pointer-events: none;
     }
 
-    .key-notification.show {
+    .notification {
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1rem 1.25rem;
+      min-width: 300px;
+      max-width: 400px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateX(100px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: auto;
+    }
+
+    .notification.show {
       opacity: 1;
+      transform: translateX(0);
+    }
+
+    .notification-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .notification-icon {
+      font-size: 1.25rem;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      margin: 0;
+      font-size: 0.95rem;
+      flex-grow: 1;
+    }
+
+    .notification-close {
+      background: none;
+      border: none;
+      color: var(--fg);
+      cursor: pointer;
+      opacity: 0.6;
+      padding: 0.25rem;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .notification-close:hover {
+      opacity: 1;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .notification-message {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .notification-progress {
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+      margin-top: 0.75rem;
+      transform-origin: left;
+      animation: progress 3s linear forwards;
+    }
+
+    @keyframes progress {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(0); }
+    }
+
+    /* Panel de estadísticas */
+    .stats-panel {
+      margin: 1.5rem 0;
+    }
+
+    .stats-details {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .stats-details summary {
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 600;
+      list-style: none;
+      transition: background 0.2s ease;
+    }
+
+    .stats-details summary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .stats-details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      transition: transform 0.3s ease;
+    }
+
+    .stats-details[open] .chevron {
+      transform: rotate(180deg);
+    }
+
+    .stats-content {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.1);
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .stat-item:last-child {
+      border-bottom: none;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--accent);
+    }
+
+    /* Opciones de toggle adicionales */
+    .toggle-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      cursor: pointer;
+    }
+
+    .toggle-option input[type="checkbox"] {
+      display: none;
+    }
+
+    .toggle-slider {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s ease;
+    }
+
+    .toggle-option input:checked + label .toggle-slider {
+      background: var(--accent);
+    }
+
+    .toggle-option input:checked + label .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    .toggle-label {
+      font-size: 0.85rem;
+      flex-grow: 1;
+    }
+
+    /* Botones de acción */
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin: 1.5rem 0;
+    }
+
+    .action-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--fg);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .action-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+      transform: translateY(-2px);
+    }
+
+    .action-btn:active {
       transform: translateY(0);
     }
 
-    .preview {
-      margin: 1.5rem 0;
-      padding: 1.25rem;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.1);
-      font-size: 0.9rem;
-      line-height: 1.6;
-      border: 1px solid var(--border);
+    .btn-icon {
+      font-size: 1.25rem;
     }
 
+    .btn-text {
+      font-size: 0.75rem;
+    }
+
+    /* Botón principal */
     .btn {
       width: 100%;
       font-family: inherit;
@@ -232,168 +590,699 @@
       background: var(--fg);
       color: var(--bg);
       cursor: pointer;
-      transition: 0.3s;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
     }
 
-    .btn:hover { transform: scale(1.02); }
+    .btn:hover { 
+      transform: scale(1.02);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    /* Tooltip de ayuda */
+    .help-tooltip {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+
+    .switch:hover + .help-tooltip {
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .card {
+        padding: 1.5rem;
+        margin: 0.5rem;
+      }
+      
+      .keyboard-shortcuts {
+        gap: 0.5rem;
+      }
+      
+      .key {
+        min-width: 70px;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+      }
+      
+      .action-buttons {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .notification {
+        min-width: 250px;
+        max-width: 300px;
+      }
+    }
+
+    /* Reducir movimiento para accesibilidad */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+      
+      .card:hover,
+      .btn:hover,
+      .key:hover,
+      .action-btn:hover {
+        transform: none !important;
+      }
+    }
   </style>
 </head>
 <body>
 
+  <!-- Elementos de fondo -->
   <div class="sun"></div>
-
-  <!-- Notificación de tecla presionada -->
-  <div class="key-notification" id="key-notification">
-    Tecla presionada: <span id="key-pressed"></span>
+  <div class="cosmic-transition" id="cosmic-transition"></div>
+  <div class="particles-container" id="particles"></div>
+  <div class="aurora" id="aurora">
+    <div class="aurora-layer"></div>
+    <div class="aurora-layer"></div>
   </div>
 
-  <section class="card">
-    <h1>Cosmos UI</h1>
-    <p class="subtitle">Cambia entre la calma de la noche y la energía del día.</p>
+  <!-- Contenedor de notificaciones -->
+  <div class="notification-container" id="notification-container"></div>
 
+  <section class="card">
+    <!-- Encabezado -->
+    <h1>UI and UX mod Pro</h1>
+    <p class="subtitle">Controla el universo visual con atajos inteligentes</p>
+
+    <!-- Selector de tema principal -->
     <div class="toggle-container">
       <span class="mode-label" id="mode-label">Modo Galaxia</span>
       <div class="switch" id="theme-toggle">
         <div class="knob"></div>
       </div>
+      <div class="help-tooltip">Click o usa atajos de teclado</div>
       
-      <!-- Indicador de teclas de acceso rápido -->
+      <!-- Atajos de teclado -->
       <div class="keyboard-shortcuts">
-        <div class="key" onclick="setDarkTheme()">
+        <div class="key" onclick="setLightTheme()" title="Día">
+          <kbd>D</kbd>
+          <span>Día</span>
+        </div>
+        <div class="key" onclick="setDarkTheme()" title="Noche">
           <kbd>N</kbd>
           <span>Noche</span>
         </div>
-        <div class="key" onclick="setLightTheme()">
-          <kbd>D</kbd>
-          <span>Día</span>
+        <div class="key" onclick="toggleCinemaMode()" title="Modo Cine">
+          <kbd>C</kbd>
+          <span>Cosmo</span>
         </div>
       </div>
     </div>
 
-    <div class="preview">
-      "Mira las estrellas, pero mantén los pies en la tierra."
+    <!-- Botones de acción adicionales -->
+    <div class="action-buttons">
+      <button class="action-btn" onclick="toggleAutoMode()" id="auto-mode-btn">
+        <span class="btn-text">Auto</span>
+      </button>
+      <button class="action-btn" onclick="toggleSounds()" id="sounds-btn">
+        <span class="btn-text">Sonidos</span>
+      </button>
     </div>
 
-    <button class="btn" id="reset-pref">Limpiar Preferencias</button>
+    <!-- Botón principal -->
+    <button class="btn" id="reset-pref">Restablecer Configuración</button>
     
-    <p style="font-size: 0.8rem; margin-top: 1.5rem; opacity: 0.6;">
-      💡 Tip: Presiona <kbd>N</kbd> para Noche o <kbd>D</kbd> para Día
+    <!-- Pie de página informativo -->
+    <p style="font-size: 0.75rem; margin-top: 1.5rem; opacity: 0.6; text-align: center;">
+      Atajos: <kbd>D</kbd>=Día | <kbd>N</kbd>=Noche | <kbd>C</kbd>=Cosmo 
     </p>
   </section>
 
   <script>
-    const toggle = document.getElementById("theme-toggle");
-    const modeLabel = document.getElementById("mode-label");
-    const resetBtn = document.getElementById("reset-pref");
-    const keyNotification = document.getElementById("key-notification");
-    const keyPressed = document.getElementById("key-pressed");
+    // ==================== CONFIGURACIÓN INICIAL ====================
+    
+    // Referencias a elementos del DOM
+    const elements = {
+      toggle: document.getElementById('theme-toggle'),
+      modeLabel: document.getElementById('mode-label'),
+      resetBtn: document.getElementById('reset-pref'),
+      cosmicTransition: document.getElementById('cosmic-transition'),
+      particlesContainer: document.getElementById('particles'),
+      notificationContainer: document.getElementById('notification-container'),
+      statsDetails: document.getElementById('stats-details'),
+      currentTheme: document.getElementById('current-theme'),
+      changesToday: document.getElementById('changes-today'),
+      themeTime: document.getElementById('theme-time'),
+      localTime: document.getElementById('local-time'),
+      autoModeToggle: document.getElementById('auto-mode-toggle'),
+      animationsToggle: document.getElementById('animations-toggle'),
+      autoModeBtn: document.getElementById('auto-mode-btn'),
+      soundsBtn: document.getElementById('sounds-btn')
+    };
 
-    // Función para mostrar notificación de tecla
-    function showKeyNotification(keyName) {
-      keyPressed.textContent = keyName;
-      keyNotification.classList.add('show');
-      
-      setTimeout(() => {
-        keyNotification.classList.remove('show');
-      }, 1500);
-    }
+    // Variables de estado
+    const state = {
+      currentTheme: 'dark',
+      themeChangesToday: 0,
+      themeStartTime: Date.now(),
+      autoMode: false,
+      soundsEnabled: true,
+      cinemaMode: false,
+      notifications: []
+    };
 
-    // Función para aplicar tema
-    function applyTheme(theme, source = "keyboard") {
-      if (theme === "light") {
-        document.body.classList.add("light");
-        modeLabel.textContent = "Día Soleado";
-      } else {
-        document.body.classList.remove("light");
-        modeLabel.textContent = "Noche Estrellada";
+    // ==================== SISTEMA DE SONIDOS ====================
+    
+    class ThemeSoundSystem {
+      constructor() {
+        this.audioContext = null;
+        this.init();
       }
       
-      // Si fue desde teclado, mostrar notificación
-      if (source === "keyboard") {
-        showKeyNotification(theme === "light" ? "D (Día)" : "N (Noche)");
-      }
-      
-      return theme;
-    }
-
-    // Funciones específicas para cada tema
-    function setLightTheme() {
-      const theme = applyTheme("light", "keyboard");
-      localStorage.setItem("theme", theme);
-    }
-
-    function setDarkTheme() {
-      const theme = applyTheme("dark", "keyboard");
-      localStorage.setItem("theme", theme);
-    }
-
-    // Función para alternar tema
-    function toggleTheme() {
-      const isLight = document.body.classList.contains("light");
-      const newTheme = isLight ? "dark" : "light";
-      const theme = applyTheme(newTheme, "click");
-      localStorage.setItem("theme", theme);
-    }
-
-    // Cargar tema guardado
-    function loadTheme() {
-      const stored = localStorage.getItem("theme") || "dark";
-      applyTheme(stored, "load");
-    }
-
-    // Manejar eventos de teclado
-    document.addEventListener('keydown', (e) => {
-      // Convertir a minúscula para manejar tanto mayúsculas como minúsculas
-      const key = e.key.toLowerCase();
-      
-      // Verificar si estamos en un campo de texto para no interferir
-      const isTextInput = e.target.matches('input, textarea, [contenteditable="true"]');
-      
-      if (!isTextInput) {
-        switch(key) {
-          case 'n':
-            e.preventDefault();
-            setDarkTheme();
-            break;
-          case 'd':
-            e.preventDefault();
-            setLightTheme();
-            break;
-          case 't': // 'T' para toggle también
-            e.preventDefault();
-            toggleTheme();
-            showKeyNotification("T (Alternar)");
-            break;
-          case 'r': // 'R' para reset
-            e.preventDefault();
-            localStorage.removeItem("theme");
-            applyTheme("dark", "keyboard");
-            showKeyNotification("R (Reset)");
-            break;
+      init() {
+        // Intentar crear contexto de audio (requiere interacción del usuario)
+        try {
+          this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+          console.log('AudioContext no disponible:', e);
         }
       }
-    });
-
-    // Event Listeners originales
-    toggle.addEventListener("click", toggleTheme);
+      
+      playThemeSound(theme) {
+        if (!state.soundsEnabled || !this.audioContext) return;
+        
+        try {
+          const oscillator = this.audioContext.createOscillator();
+          const gainNode = this.audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(this.audioContext.destination);
+          
+          // Frecuencias musicales para diferentes temas
+          if (theme === 'cinema') {
+            oscillator.frequency.value = 261.63; // Do (C4)
+          } else if (theme === 'light') {
+            oscillator.frequency.value = 329.63; // Mi (E4)
+          } else {
+            oscillator.frequency.value = 196.00; // Sol (G3)
+          }
+          
+          oscillator.type = 'sine';
+          
+          // Fade in/out suave
+          gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+          gainNode.gain.linearRampToValueAtTime(0.1, this.audioContext.currentTime + 0.05);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
+          
+          oscillator.start(this.audioContext.currentTime);
+          oscillator.stop(this.audioContext.currentTime + 0.5);
+        } catch (e) {
+          console.log('Error reproduciendo sonido:', e);
+        }
+      }
+    }
     
-    resetBtn.addEventListener("click", () => {
-      localStorage.removeItem("theme");
-      applyTheme("dark", "click");
-    });
+    // Instanciar sistema de sonidos
+    const soundSystem = new ThemeSoundSystem();
 
-    // También hacer que las teclas visuales sean clickeables
-    document.querySelectorAll('.key').forEach(key => {
-      key.addEventListener('click', function() {
-        this.style.transform = 'scale(0.95)';
+    // ==================== SISTEMA DE NOTIFICACIONES ====================
+    
+    function createNotification(title, message, icon = 'ℹ️') {
+      const notificationId = Date.now();
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.id = `notification-${notificationId}`;
+      
+      notification.innerHTML = `
+        <div class="notification-header">
+          <span class="notification-icon">${icon}</span>
+          <h4 class="notification-title">${title}</h4>
+          <button class="notification-close" onclick="removeNotification(${notificationId})">×</button>
+        </div>
+        <p class="notification-message">${message}</p>
+        <div class="notification-progress"></div>
+      `;
+      
+      elements.notificationContainer.appendChild(notification);
+      
+      // Mostrar con animación
+      setTimeout(() => notification.classList.add('show'), 10);
+      
+      // Auto-remover después de 3 segundos
+      setTimeout(() => {
+        removeNotification(notificationId);
+      }, 3000);
+      
+      // Guardar referencia
+      state.notifications.push(notificationId);
+      
+      return notificationId;
+    }
+    
+    function removeNotification(id) {
+      const notification = document.getElementById(`notification-${id}`);
+      if (notification) {
+        notification.classList.remove('show');
         setTimeout(() => {
-          this.style.transform = '';
-        }, 150);
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }
+      
+      // Remover del estado
+      state.notifications = state.notifications.filter(notifId => notifId !== id);
+    }
+
+    // ==================== SISTEMA DE PARTÍCULAS ====================
+    
+    function createParticles() {
+      // Limpiar partículas existentes
+      elements.particlesContainer.innerHTML = '';
+      
+      if (state.currentTheme !== 'dark') return;
+      
+      // Crear 20 partículas aleatorias
+      for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Posición aleatoria
+        const left = Math.random() * 100;
+        const size = Math.random() * 2 + 1;
+        
+        // Estilos
+        particle.style.left = `${left}vw`;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.background = 'white';
+        particle.style.opacity = Math.random() * 0.5 + 0.3;
+        
+        // Animación con delay aleatorio
+        particle.style.animationDelay = `${Math.random() * 20}s`;
+        particle.style.animationDuration = `${Math.random() * 10 + 15}s`;
+        
+        elements.particlesContainer.appendChild(particle);
+      }
+    }
+
+    // ==================== MANEJO DE TEMAS ====================
+    
+    function applyTheme(theme, source = 'user') {
+      const previousTheme = state.currentTheme;
+      
+      // Remover clases anteriores
+      document.body.classList.remove('light', 'cinema');
+      
+      // Aplicar nueva clase según el tema
+      if (theme === 'cinema') {
+        document.body.classList.add('cinema');
+        elements.modeLabel.textContent = 'Modo Cine';
+        state.currentTheme = 'cinema';
+      } else if (theme === 'light') {
+        document.body.classList.add('light');
+        elements.modeLabel.textContent = 'Día Soleado';
+        state.currentTheme = 'light';
+      } else {
+        elements.modeLabel.textContent = 'Noche Estrellada';
+        state.currentTheme = 'dark';
+      }
+      
+      // Actualizar estadísticas
+      elements.currentTheme.textContent = 
+        state.currentTheme === 'cinema' ? 'Cine' : 
+        state.currentTheme === 'light' ? 'Día' : 'Noche';
+      
+      // Mostrar efecto de transición
+      showTransitionEffect();
+      
+      // Reproducir sonido si hubo cambio
+      if (previousTheme !== state.currentTheme) {
+        soundSystem.playThemeSound(state.currentTheme);
+        
+        // Registrar cambio si no fue carga inicial
+        if (source !== 'load') {
+          state.themeChangesToday++;
+          elements.changesToday.textContent = state.themeChangesToday;
+          saveDailyStats();
+        }
+        
+        // Mostrar notificación
+        const themeNames = {
+          dark: 'Noche Estrellada',
+          light: 'Día Soleado',
+          cinema: 'Modo Cine'
+        };
+        
+        const sourceNames = {
+          user: 'Cambio manual',
+          keyboard: 'Atajo de teclado',
+          auto: 'Modo automático',
+          load: 'Carga inicial'
+        };
+        
+        createNotification(
+          themeNames[state.currentTheme],
+          `${sourceNames[source]} • Cambios hoy: ${state.themeChangesToday}`,
+          state.currentTheme === 'light' ? '☀️' : 
+          state.currentTheme === 'cinema' ? '🎬' : '🌙'
+        );
+      }
+      
+      // Recrear partículas si es necesario
+      if (state.currentTheme === 'dark') {
+        createParticles();
+      }
+      
+      // Guardar preferencia (excepto en carga inicial)
+      if (source !== 'load') {
+        localStorage.setItem('theme', state.currentTheme);
+      }
+      
+      return state.currentTheme;
+    }
+    
+    function showTransitionEffect() {
+      elements.cosmicTransition.style.opacity = '1';
+      setTimeout(() => {
+        elements.cosmicTransition.style.opacity = '0';
+      }, 500);
+    }
+
+    // ==================== FUNCIONES ESPECÍFICAS DE TEMA ====================
+    
+    function setLightTheme() {
+      applyTheme('light', 'keyboard');
+    }
+    
+    function setDarkTheme() {
+      applyTheme('dark', 'keyboard');
+    }
+    
+    function toggleTheme() {
+      const newTheme = state.currentTheme === 'light' ? 'dark' : 'light';
+      applyTheme(newTheme, 'keyboard');
+    }
+    
+    function toggleCinemaMode() {
+      if (state.currentTheme === 'cinema') {
+        // Volver al tema anterior al cine
+        const previousTheme = localStorage.getItem('lastTheme') || 'dark';
+        applyTheme(previousTheme, 'keyboard');
+      } else {
+        // Guardar tema actual y cambiar a cine
+        localStorage.setItem('lastTheme', state.currentTheme);
+        applyTheme('cinema', 'keyboard');
+      }
+    }
+
+    // ==================== MODO AUTOMÁTICO ====================
+    
+    function detectTimeBasedTheme() {
+      const hour = new Date().getHours();
+      // Noche: 20:00 - 6:00 (8pm - 6am)
+      // Día: 6:00 - 20:00 (6am - 8pm)
+      return hour >= 20 || hour < 6 ? 'dark' : 'light';
+    }
+    
+    function toggleAutoMode() {
+      state.autoMode = !state.autoMode;
+      
+      if (state.autoMode) {
+        // Activar modo automático
+        const theme = detectTimeBasedTheme();
+        applyTheme(theme, 'auto');
+        localStorage.setItem('auto_mode', 'true');
+        
+        // Actualizar UI
+        elements.autoModeToggle.checked = true;
+        elements.autoModeBtn.innerHTML = '<span class="btn-icon"></span><span class="btn-text">Auto ON</span>';
+        
+        // Iniciar verificador
+        startAutoModeChecker();
+        
+        createNotification(
+          'Modo Automático ACTIVADO',
+          'El tema cambiará según la hora del día',
+          ''
+        );
+      } else {
+        // Desactivar modo automático
+        localStorage.setItem('auto_mode', 'false');
+        clearInterval(window.autoModeInterval);
+        
+        // Actualizar UI
+        elements.autoModeToggle.checked = false;
+        elements.autoModeBtn.innerHTML = '<span class="btn-icon"></span><span class="btn-text">Auto</span>';
+        
+        createNotification(
+          'Modo Automático Desactivado',
+          'Control manual del tema activado',
+          ''
+        );
+      }
+    }
+    
+    function startAutoModeChecker() {
+      if (window.autoModeInterval) clearInterval(window.autoModeInterval);
+      
+      window.autoModeInterval = setInterval(() => {
+        if (state.autoMode) {
+          const theme = detectTimeBasedTheme();
+          if (theme !== state.currentTheme && state.currentTheme !== 'cinema') {
+            applyTheme(theme, 'auto');
+          }
+        }
+      }, 60000); // Revisar cada minuto
+    }
+
+    // ==================== MANEJO DE SONIDOS ====================
+    
+    function toggleSounds() {
+      state.soundsEnabled = !state.soundsEnabled;
+      localStorage.setItem('theme_sounds', state.soundsEnabled);
+      
+      if (state.soundsEnabled) {
+        elements.soundsBtn.innerHTML = '<span class="btn-icon"></span><span class="btn-text">Sonido ON</span>';
+        createNotification('Sonidos Activados', 'Feedback auditivo activado', '');
+      } else {
+        elements.soundsBtn.innerHTML = '<span class="btn-icon"></span><span class="btn-text">Sonido</span>';
+        createNotification('Sonidos Desactivados', 'Modo silencioso activado', '');
+      }
+    }
+
+    // ==================== ESTADÍSTICAS ====================
+    
+    function updateStats() {
+      // Actualizar hora local
+      const now = new Date();
+      elements.localTime.textContent = now.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
       });
+      
+      // Actualizar tiempo en tema actual
+      const timeInTheme = Math.floor((Date.now() - state.themeStartTime) / 60000);
+      elements.themeTime.textContent = `${timeInTheme}min`;
+    }
+    
+    function showStats() {
+      elements.statsDetails.open = !elements.statsDetails.open;
+    }
+    
+    function saveDailyStats() {
+      const today = new Date().toDateString();
+      const stats = JSON.parse(localStorage.getItem('theme_stats') || '{}');
+      
+      if (!stats[today]) {
+        stats[today] = { changes: 0, themes: {} };
+      }
+      
+      stats[today].changes = state.themeChangesToday;
+      stats[today].themes[state.currentTheme] = 
+        (stats[today].themes[state.currentTheme] || 0) + 1;
+      
+      localStorage.setItem('theme_stats', JSON.stringify(stats));
+    }
+    
+    function loadDailyStats() {
+      const today = new Date().toDateString();
+      const stats = JSON.parse(localStorage.getItem('theme_stats') || '{}');
+      
+      if (stats[today]) {
+        state.themeChangesToday = stats[today].changes || 0;
+        elements.changesToday.textContent = state.themeChangesToday;
+      }
+    }
+
+    // ==================== CARGA INICIAL ====================
+    
+    function loadTheme() {
+      // Cargar preferencias guardadas
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      const autoMode = localStorage.getItem('auto_mode') === 'true';
+      const soundsEnabled = localStorage.getItem('theme_sounds') !== 'false';
+      
+      // Aplicar configuraciones
+      state.soundsEnabled = soundsEnabled;
+      state.autoMode = autoMode;
+      
+      // Actualizar elementos de UI
+      elements.autoModeToggle.checked = autoMode;
+      elements.animationsToggle.checked = localStorage.getItem('animations') !== 'false';
+      
+      if (soundsEnabled) {
+        elements.soundsBtn.innerHTML = '<span class="btn-icon"></span><span class="btn-text">Sonido ON</span>';
+      } else {
+        elements.soundsBtn.innerHTML = '<span class="btn-icon"></span><span class="btn-text">Sonido</span>';
+      }
+      
+      if (autoMode) {
+        elements.autoModeBtn.innerHTML = '<span class="btn-icon"></span><span class="btn-text">Auto ON</span>';
+        startAutoModeChecker();
+      }
+      
+      // Cargar estadísticas diarias
+      loadDailyStats();
+      
+      // Aplicar tema (con detección automática si está activo)
+      if (autoMode) {
+        const autoTheme = detectTimeBasedTheme();
+        applyTheme(autoTheme, 'load');
+      } else {
+        applyTheme(savedTheme, 'load');
+      }
+    }
+
+    // ==================== MANEJO DE TECLADO ====================
+    
+    document.addEventListener('keydown', (e) => {
+      // Ignorar si estamos en un campo de texto
+      const isTextInput = e.target.matches('input, textarea, [contenteditable="true"]');
+      if (isTextInput) return;
+      
+      const key = e.key.toLowerCase();
+      
+      switch(key) {
+        case 'n':
+          e.preventDefault();
+          setDarkTheme();
+          break;
+        case 'd':
+          e.preventDefault();
+          setLightTheme();
+          break;
+        case 't':
+          e.preventDefault();
+          toggleTheme();
+          break;
+        case 'c':
+          e.preventDefault();
+          toggleCinemaMode();
+          break;
+        case 'r':
+          e.preventDefault();
+          localStorage.clear();
+          location.reload();
+          break;
+        case 'a':
+          e.preventDefault();
+          toggleAutoMode();
+          break;
+        case 's':
+          e.preventDefault();
+          toggleSounds();
+          break;
+        case '?':
+          e.preventDefault();
+          createNotification(
+            'Atajos de Teclado',
+            'N=Noche, D=Día, T=Alternar, C=Cine, A=Auto, S=Sonidos, R=Reset',
+            '⌨️'
+          );
+          break;
+      }
     });
 
-    // Cargar tema al inicio
-    loadTheme();
+    // ==================== EVENT LISTENERS ====================
+    
+    elements.toggle.addEventListener('click', () => {
+      toggleTheme();
+    });
+    
+    elements.toggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleTheme();
+      }
+    });
+    
+    elements.resetBtn.addEventListener('click', () => {
+      localStorage.clear();
+      createNotification('🔄 Sistema Reiniciado', 'Todas las preferencias fueron restablecidas', '🔄');
+      setTimeout(() => location.reload(), 1000);
+    });
+    
+    elements.autoModeToggle.addEventListener('change', (e) => {
+      if (e.target.checked !== state.autoMode) {
+        toggleAutoMode();
+      }
+    });
+    
+    elements.animationsToggle.addEventListener('change', (e) => {
+      localStorage.setItem('animations', e.target.checked);
+      createNotification(
+        e.target.checked ? 'Animaciones ACTIVADAS' : 'Animaciones DESACTIVADAS',
+        e.target.checked ? 'Transiciones suaves activadas' : 'Modo de rendimiento activado',
+        '🎬'
+      );
+    });
+
+    // ==================== INICIALIZACIÓN ====================
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      loadTheme();
+      createParticles();
+      
+      // Actualizar estadísticas cada minuto
+      setInterval(updateStats, 60000);
+      updateStats();
+      
+      // Crear partículas cada 30 segundos para refrescar
+      setInterval(createParticles, 30000);
+      
+      // Mostrar notificación de bienvenida
+      setTimeout(() => {
+        createNotification(
+          'Cosmos UI Pro Cargado',
+          'Usa atajos: N=Noche, D=Día, T=Alternar, C=Cine',
+          ''
+        );
+      }, 1000);
+    });
+
+    // ==================== FUNCIONES GLOBALES ====================
+    
+    // Hacer funciones disponibles globalmente para los onclick
+    window.setLightTheme = setLightTheme;
+    window.setDarkTheme = setDarkTheme;
+    window.toggleTheme = toggleTheme;
+    window.toggleCinemaMode = toggleCinemaMode;
+    window.toggleAutoMode = toggleAutoMode;
+    window.toggleSounds = toggleSounds;
+    window.showStats = showStats;
+    window.removeNotification = removeNotification;
+
   </script>
 </body>
 </html>
