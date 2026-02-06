@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>JS Práctica 2: Modo claro/oscuro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/@heroicons/vue/24/outline/index.js"></script>
+  <style>
+    /* Reseteo del modelo de caja para todos los elementos */
+    * { box-sizing: border-box; }
+
+    /*
+      Definición de variables CSS para el modo oscuro (tema por defecto)
+      Estas variables contienen la paleta de colores para el tema oscuro
+    */
+    :root {
+      --bg: #0f172a;        /* Color de fondo principal */
+      --fg: #e5e7eb;        /* Color del texto principal */
+      --card: #020617;      /* Color de fondo de las tarjetas */
+      --accent: #38bdf8;    /* Color de acento para elementos interactivos */
+    }
+
+    /*
+      Definición de variables CSS para el modo claro
+      Estas variables sobrescriben las anteriores cuando el body tiene la clase .light
+    */
+    body.light {
+      --bg: #f3f4f6;       /* Fondo claro */
+      --fg: #111827;       /* Texto oscuro */
+      --card: #ffffff;     /* Tarjetas blancas */
+      --accent: #2563eb;   /* Azul más intenso para contraste */
+    }
+
+    /*
+      Estilos base del body:
+      - Elimina márgenes por defecto
+      - Usa fuentes del sistema para mejor rendimiento
+      - Centra el contenido vertical y horizontalmente
+      - Aplica colores desde variables CSS
+      - Agrega transición suave para cambios de tema
+    */
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    /* 
+      Estilo de la tarjeta principal:
+      - Usa colores de variables CSS
+      - Bordes redondeados y sombra para efecto de elevación
+      - Ancho máximo para buena legibilidad en pantallas grandes
+    */
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 1.75rem 1.5rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 14px 35px rgba(0,0,0,0.45);
+      border: 1px solid rgba(148,163,184,0.3);
+    }
+
+    /* Estilos para el título principal */
+    h1 {
+      margin: 0 0 0.35rem;
+      font-size: 1.4rem;
+    }
+
+    /* Estilos para el subtítulo */
+    p.subtitle {
+      margin: 0 0 1rem;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    /* 
+      Área de vista previa:
+      - Muestra cómo se vería el contenido en el tema actual
+      - Borde discontinuo para indicar que es demostrativo
+    */
+    .preview {
+      margin-top: 1.2rem;
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px dashed rgba(148,163,184,0.6);
+      font-size: 0.9rem;
+    }
+
+    /* 
+      Fila que contiene el label y el toggle:
+      - Usa flexbox para alinear elementos horizontalmente
+      - Espaciado uniforme entre elementos
+    */
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    /* Label que muestra el modo actual */
+    .mode-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    /* 
+      Fondo del toggle (interruptor):
+      - Forma de píldora rectangular con bordes redondeados
+      - Color de fondo neutro
+      - Contenedor para el círulo deslizante
+    */
+    .pill {
+      width: 64px;
+      height: 32px;
+      border-radius: 999px;
+      background: rgba(148,163,184,0.4);
+      display: flex;
+      align-items: center;
+      padding: 3px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    /* 
+      Círculo deslizante del toggle:
+      - Color de acento definido por variable CSS
+      - Posición inicial a la izquierda (modo oscuro)
+      - Transición para movimiento suave
+    */
+    .thumb {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: var(--accent);
+      transform: translateX(0);
+      transition: transform 0.2s ease;
+    }
+
+    /* 
+      Cuando el body tiene clase .light, mueve el círculo a la derecha
+      Esto simula el cambio de estado del toggle
+    */
+    body.light .thumb {
+      transform: translateX(30px);
+    }
+
+    /* Texto de sugerencia o ayuda */
+    .hint {
+      margin-top: 0.7rem;
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    /* Botón para resetear preferencias */
+    .btn {
+      margin-top: 1.1rem;
+      font: inherit;
+      border-radius: 999px;
+      padding: 0.45rem 1rem;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: transparent;
+      color: var(--fg);
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Contenedor principal de la aplicación -->
+  <section class="card">
+    <h1>Modo claro / oscuro</h1>
+    <p class="subtitle">
+      Usa el interruptor para cambiar el tema de la página. La preferencia se guarda.
+    </p>
+
+    <!-- Fila que contiene el label del modo y el interruptor -->
+    <div class="toggle-row">
+      <span class="mode-label" id="mode-label">Modo oscuro</span>
+      <!-- Interruptor visual para cambiar tema -->
+      <div class="pill" id="theme-toggle" aria-label="Cambiar tema">
+        <div class="thumb"></div>
+      </div>
+    </div>
+
+    <!-- Área de demostración que muestra cómo se ve el contenido -->
+    <div class="preview" id="preview">
+      Este es un ejemplo de contenido que cambia de aspecto según el tema
+      seleccionado por el usuario.
+    </div>
+
+    <!-- Texto informativo sobre cómo funciona el sistema -->
+    <p class="hint">
+      Tip: revisa el código para ver cómo se usan clases en el body y
+      <code>localStorage</code> para recordar el tema.
+    </p>
+
+    <!-- Botón para eliminar la preferencia guardada -->
+    <button class="btn" id="reset-pref">Olvidar preferencia</button>
+  </section>
+
+  <script>
+    // Referencias a elementos DOM importantes
+    const toggle = document.getElementById("theme-toggle");
+    const modeLabel = document.getElementById("mode-label");
+    const resetBtn = document.getElementById("reset-pref");
+
+    /**
+     * Función que aplica un tema específico al documento
+     * @param {string} theme - El tema a aplicar: "light" o "dark"
+     */
+    function applyTheme(theme) {
+      // Si el tema es claro, añade la clase .light al body
+      if (theme === "light") {
+        document.body.classList.add("light");
+        modeLabel.textContent = "Modo claro";  // Actualiza el texto del label
+      } else {
+        // Si el tema es oscuro, remueve la clase .light
+        document.body.classList.remove("light");
+        modeLabel.textContent = "Modo oscuro"; // Actualiza el texto del label
+      }
+    }
+
+    /**
+     * Función que carga el tema guardado en localStorage
+     * Si no hay tema guardado, aplica el tema oscuro por defecto
+     */
+    function loadTheme() {
+      const stored = localStorage.getItem("theme");
+      // Verifica si hay un tema válido guardado
+      if (stored === "light" || stored === "dark") {
+        applyTheme(stored);  // Aplica el tema guardado
+      } else {
+        applyTheme("dark");  // Aplica tema oscuro por defecto
+      }
+    }
+
+    /**
+     * Event Listener para el toggle:
+     * Detecta el click y alterna entre temas claro y oscuro
+     */
+    toggle.addEventListener("click", () => {
+      // Verifica si actualmente está en modo claro
+      const isLight = document.body.classList.contains("light");
+      // Determina el nuevo tema (opuesto al actual)
+      const newTheme = isLight ? "dark" : "light";
+      
+      // Aplica el nuevo tema visualmente
+      applyTheme(newTheme);
+      // Guarda la preferencia en localStorage
+      localStorage.setItem("theme", newTheme);
+    });
+
+    /**
+     * Event Listener para el botón de reset:
+     * Elimina la preferencia guardada y vuelve al tema por defecto
+     */
+    resetBtn.addEventListener("click", () => {
+      // Elimina el tema guardado del almacenamiento local
+      localStorage.removeItem("theme");
+      // Vuelve al tema oscuro por defecto
+      applyTheme("dark");
+    });
+
+    // Carga el tema al iniciar la página
+    loadTheme();
+  </script>
+</body>
+</html>
