@@ -2,276 +2,397 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>JS Práctica 2: Modo claro/oscuro</title>
+  <title>Celestial Theme Switcher</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://unpkg.com/@heroicons/vue/24/outline/index.js"></script>
   <style>
-    /* Reseteo del modelo de caja para todos los elementos */
     * { box-sizing: border-box; }
 
-    /*
-      Definición de variables CSS para el modo oscuro (tema por defecto)
-      Estas variables contienen la paleta de colores para el tema oscuro
-    */
     :root {
-      --bg: #0f172a;        /* Color de fondo principal */
-      --fg: #e5e7eb;        /* Color del texto principal */
-      --card: #020617;      /* Color de fondo de las tarjetas */
-      --accent: #38bdf8;    /* Color de acento para elementos interactivos */
+      /* Tema Oscuro - Espacio Profundo */
+      --bg: #020617;
+      --bg-gradient: radial-gradient(circle at bottom, #1e1b4b, #020617);
+      --fg: #f8fafc;
+      --card: rgba(15, 23, 42, 0.6);
+      --accent: #38bdf8;
+      --border: rgba(255, 255, 255, 0.1);
+      --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      --sun-opacity: 0;
+      --stars-opacity: 1;
     }
 
-    /*
-      Definición de variables CSS para el modo claro
-      Estas variables sobrescriben las anteriores cuando el body tiene la clase .light
-    */
     body.light {
-      --bg: #f3f4f6;       /* Fondo claro */
-      --fg: #111827;       /* Texto oscuro */
-      --card: #ffffff;     /* Tarjetas blancas */
-      --accent: #2563eb;   /* Azul más intenso para contraste */
+      /* Tema Claro - Día Despejado */
+      --bg: #bae6fd;
+      --bg-gradient: linear-gradient(to bottom, #7dd3fc, #bae6fd);
+      --fg: #0f172a;
+      --card: rgba(255, 255, 255, 0.5);
+      --accent: #f59e0b;
+      --border: rgba(255, 255, 255, 0.4);
+      --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      --sun-opacity: 1;
+      --stars-opacity: 0;
     }
 
-    /*
-      Estilos base del body:
-      - Elimina márgenes por defecto
-      - Usa fuentes del sistema para mejor rendimiento
-      - Centra el contenido vertical y horizontalmente
-      - Aplica colores desde variables CSS
-      - Agrega transición suave para cambios de tema
-    */
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
+      background-image: var(--bg-gradient);
       color: var(--fg);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
-      transition: background 0.25s ease, color 0.25s ease;
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      position: relative;
     }
 
-    /* 
-      Estilo de la tarjeta principal:
-      - Usa colores de variables CSS
-      - Bordes redondeados y sombra para efecto de elevación
-      - Ancho máximo para buena legibilidad en pantallas grandes
-    */
+    /* CAPA DE ESTRELLAS (Modo Oscuro) */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      /* Generamos puntos blancos pequeños aleatorios con box-shadow */
+      box-shadow: 
+        20vw 10vh 1px #fff, 80vw 20vh 2px #fff, 40vw 30vh 1px #fff,
+        10vw 60vh 1px #fff, 90vw 80vh 2px #fff, 50vw 90vh 1px #fff,
+        30vw 40vh 1px #fff, 70vw 50vh 1.5px #fff, 15vw 85vh 1px #fff;
+      opacity: var(--stars-opacity);
+      transition: opacity 1s ease;
+      z-index: 0;
+    }
+
+    /* EL SOL (Modo Claro) */
+    .sun {
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, #fbbf24 20%, #f59e0b 50%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(20px);
+      opacity: var(--sun-opacity);
+      transition: all 1s ease;
+      z-index: 0;
+      box-shadow: 0 0 100px #f59e0b;
+    }
+
     .card {
+      position: relative;
       background: var(--card);
-      border-radius: 16px;
-      padding: 1.75rem 1.5rem;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 32px;
+      padding: 2.5rem;
       width: 100%;
-      max-width: 420px;
-      box-shadow: 0 14px 35px rgba(0,0,0,0.45);
-      border: 1px solid rgba(148,163,184,0.3);
+      max-width: 400px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      text-align: center;
+      z-index: 10;
+      transition: transform 0.3s ease;
     }
 
-    /* Estilos para el título principal */
-    h1 {
-      margin: 0 0 0.35rem;
-      font-size: 1.4rem;
+    h1 { margin: 0 0 0.5rem; font-size: 1.8rem; font-weight: 800; }
+    .subtitle { margin: 0 0 2rem; font-size: 0.95rem; opacity: 0.8; }
+
+    .toggle-container {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 1.5rem;
+      border-radius: 24px;
+      margin-bottom: 1.5rem;
+      position: relative;
     }
 
-    /* Estilos para el subtítulo */
-    p.subtitle {
-      margin: 0 0 1rem;
-      font-size: 0.9rem;
-      opacity: 0.8;
-    }
-
-    /* 
-      Área de vista previa:
-      - Muestra cómo se vería el contenido en el tema actual
-      - Borde discontinuo para indicar que es demostrativo
-    */
-    .preview {
-      margin-top: 1.2rem;
-      padding: 1rem;
-      border-radius: 12px;
-      border: 1px dashed rgba(148,163,184,0.6);
-      font-size: 0.9rem;
-    }
-
-    /* 
-      Fila que contiene el label y el toggle:
-      - Usa flexbox para alinear elementos horizontalmente
-      - Espaciado uniforme entre elementos
-    */
-    .toggle-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      margin-top: 0.75rem;
-    }
-
-    /* Label que muestra el modo actual */
     .mode-label {
-      font-size: 0.9rem;
-      opacity: 0.9;
+      display: block;
+      margin-bottom: 1rem;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: var(--fg);
     }
 
-    /* 
-      Fondo del toggle (interruptor):
-      - Forma de píldora rectangular con bordes redondeados
-      - Color de fondo neutro
-      - Contenedor para el círulo deslizante
-    */
-    .pill {
-      width: 64px;
-      height: 32px;
-      border-radius: 999px;
-      background: rgba(148,163,184,0.4);
+    .switch {
+      position: relative;
+      width: 75px;
+      height: 40px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 50px;
+      cursor: pointer;
+      margin: 0 auto;
       display: flex;
       align-items: center;
-      padding: 3px;
-      cursor: pointer;
-      transition: background 0.2s ease;
+      padding: 5px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
     }
 
-    /* 
-      Círculo deslizante del toggle:
-      - Color de acento definido por variable CSS
-      - Posición inicial a la izquierda (modo oscuro)
-      - Transición para movimiento suave
-    */
-    .thumb {
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
+    .switch:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+    }
+
+    .knob {
+      width: 30px;
+      height: 30px;
       background: var(--accent);
-      transform: translateX(0);
-      transition: transform 0.2s ease;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 20px var(--accent);
+      font-size: 16px;
     }
 
-    /* 
-      Cuando el body tiene clase .light, mueve el círculo a la derecha
-      Esto simula el cambio de estado del toggle
-    */
-    body.light .thumb {
-      transform: translateX(30px);
+    body.light .knob { transform: translateX(35px); }
+    .knob::before { content: '🌙'; }
+    body.light .knob::before { content: '☀️'; }
+
+    /* Indicador de teclas de acceso rápido */
+    .keyboard-shortcuts {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
     }
 
-    /* Texto de sugerencia o ayuda */
-    .hint {
-      margin-top: 0.7rem;
+    .key {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
       font-size: 0.8rem;
-      opacity: 0.8;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.2s ease;
     }
 
-    /* Botón para resetear preferencias */
-    .btn {
-      margin-top: 1.1rem;
-      font: inherit;
-      border-radius: 999px;
-      padding: 0.45rem 1rem;
-      border: 1px solid rgba(148,163,184,0.6);
-      background: transparent;
-      color: var(--fg);
-      cursor: pointer;
-      font-size: 0.85rem;
+    .key:hover {
+      background: var(--accent);
+      color: var(--bg);
+      transform: translateY(-2px);
     }
+
+    .key kbd {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-family: monospace;
+      font-weight: bold;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* Notificación de tecla presionada */
+    .key-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--accent);
+      color: var(--bg);
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .key-notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .preview {
+      margin: 1.5rem 0;
+      padding: 1.25rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      border: 1px solid var(--border);
+    }
+
+    .btn {
+      width: 100%;
+      font-family: inherit;
+      font-weight: 600;
+      border-radius: 14px;
+      padding: 0.9rem;
+      border: none;
+      background: var(--fg);
+      color: var(--bg);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover { transform: scale(1.02); }
   </style>
 </head>
 <body>
-  <!-- Contenedor principal de la aplicación -->
-  <section class="card">
-    <h1>Modo claro / oscuro</h1>
-    <p class="subtitle">
-      Usa el interruptor para cambiar el tema de la página. La preferencia se guarda.
-    </p>
 
-    <!-- Fila que contiene el label del modo y el interruptor -->
-    <div class="toggle-row">
-      <span class="mode-label" id="mode-label">Modo oscuro</span>
-      <!-- Interruptor visual para cambiar tema -->
-      <div class="pill" id="theme-toggle" aria-label="Cambiar tema">
-        <div class="thumb"></div>
+  <div class="sun"></div>
+
+  <!-- Notificación de tecla presionada -->
+  <div class="key-notification" id="key-notification">
+    Tecla presionada: <span id="key-pressed"></span>
+  </div>
+
+  <section class="card">
+    <h1>Cosmos UI</h1>
+    <p class="subtitle">Cambia entre la calma de la noche y la energía del día.</p>
+
+    <div class="toggle-container">
+      <span class="mode-label" id="mode-label">Modo Galaxia</span>
+      <div class="switch" id="theme-toggle">
+        <div class="knob"></div>
+      </div>
+      
+      <!-- Indicador de teclas de acceso rápido -->
+      <div class="keyboard-shortcuts">
+        <div class="key" onclick="setDarkTheme()">
+          <kbd>N</kbd>
+          <span>Noche</span>
+        </div>
+        <div class="key" onclick="setLightTheme()">
+          <kbd>D</kbd>
+          <span>Día</span>
+        </div>
       </div>
     </div>
 
-    <!-- Área de demostración que muestra cómo se ve el contenido -->
-    <div class="preview" id="preview">
-      Este es un ejemplo de contenido que cambia de aspecto según el tema
-      seleccionado por el usuario.
+    <div class="preview">
+      "Mira las estrellas, pero mantén los pies en la tierra."
     </div>
 
-    <!-- Texto informativo sobre cómo funciona el sistema -->
-    <p class="hint">
-      Tip: revisa el código para ver cómo se usan clases en el body y
-      <code>localStorage</code> para recordar el tema.
+    <button class="btn" id="reset-pref">Limpiar Preferencias</button>
+    
+    <p style="font-size: 0.8rem; margin-top: 1.5rem; opacity: 0.6;">
+      💡 Tip: Presiona <kbd>N</kbd> para Noche o <kbd>D</kbd> para Día
     </p>
-
-    <!-- Botón para eliminar la preferencia guardada -->
-    <button class="btn" id="reset-pref">Olvidar preferencia</button>
   </section>
 
   <script>
-    // Referencias a elementos DOM importantes
     const toggle = document.getElementById("theme-toggle");
     const modeLabel = document.getElementById("mode-label");
     const resetBtn = document.getElementById("reset-pref");
+    const keyNotification = document.getElementById("key-notification");
+    const keyPressed = document.getElementById("key-pressed");
 
-    /**
-     * Función que aplica un tema específico al documento
-     * @param {string} theme - El tema a aplicar: "light" o "dark"
-     */
-    function applyTheme(theme) {
-      // Si el tema es claro, añade la clase .light al body
+    // Función para mostrar notificación de tecla
+    function showKeyNotification(keyName) {
+      keyPressed.textContent = keyName;
+      keyNotification.classList.add('show');
+      
+      setTimeout(() => {
+        keyNotification.classList.remove('show');
+      }, 1500);
+    }
+
+    // Función para aplicar tema
+    function applyTheme(theme, source = "keyboard") {
       if (theme === "light") {
         document.body.classList.add("light");
-        modeLabel.textContent = "Modo claro";  // Actualiza el texto del label
+        modeLabel.textContent = "Día Soleado";
       } else {
-        // Si el tema es oscuro, remueve la clase .light
         document.body.classList.remove("light");
-        modeLabel.textContent = "Modo oscuro"; // Actualiza el texto del label
+        modeLabel.textContent = "Noche Estrellada";
       }
-    }
-
-    /**
-     * Función que carga el tema guardado en localStorage
-     * Si no hay tema guardado, aplica el tema oscuro por defecto
-     */
-    function loadTheme() {
-      const stored = localStorage.getItem("theme");
-      // Verifica si hay un tema válido guardado
-      if (stored === "light" || stored === "dark") {
-        applyTheme(stored);  // Aplica el tema guardado
-      } else {
-        applyTheme("dark");  // Aplica tema oscuro por defecto
-      }
-    }
-
-    /**
-     * Event Listener para el toggle:
-     * Detecta el click y alterna entre temas claro y oscuro
-     */
-    toggle.addEventListener("click", () => {
-      // Verifica si actualmente está en modo claro
-      const isLight = document.body.classList.contains("light");
-      // Determina el nuevo tema (opuesto al actual)
-      const newTheme = isLight ? "dark" : "light";
       
-      // Aplica el nuevo tema visualmente
-      applyTheme(newTheme);
-      // Guarda la preferencia en localStorage
-      localStorage.setItem("theme", newTheme);
+      // Si fue desde teclado, mostrar notificación
+      if (source === "keyboard") {
+        showKeyNotification(theme === "light" ? "D (Día)" : "N (Noche)");
+      }
+      
+      return theme;
+    }
+
+    // Funciones específicas para cada tema
+    function setLightTheme() {
+      const theme = applyTheme("light", "keyboard");
+      localStorage.setItem("theme", theme);
+    }
+
+    function setDarkTheme() {
+      const theme = applyTheme("dark", "keyboard");
+      localStorage.setItem("theme", theme);
+    }
+
+    // Función para alternar tema
+    function toggleTheme() {
+      const isLight = document.body.classList.contains("light");
+      const newTheme = isLight ? "dark" : "light";
+      const theme = applyTheme(newTheme, "click");
+      localStorage.setItem("theme", theme);
+    }
+
+    // Cargar tema guardado
+    function loadTheme() {
+      const stored = localStorage.getItem("theme") || "dark";
+      applyTheme(stored, "load");
+    }
+
+    // Manejar eventos de teclado
+    document.addEventListener('keydown', (e) => {
+      // Convertir a minúscula para manejar tanto mayúsculas como minúsculas
+      const key = e.key.toLowerCase();
+      
+      // Verificar si estamos en un campo de texto para no interferir
+      const isTextInput = e.target.matches('input, textarea, [contenteditable="true"]');
+      
+      if (!isTextInput) {
+        switch(key) {
+          case 'n':
+            e.preventDefault();
+            setDarkTheme();
+            break;
+          case 'd':
+            e.preventDefault();
+            setLightTheme();
+            break;
+          case 't': // 'T' para toggle también
+            e.preventDefault();
+            toggleTheme();
+            showKeyNotification("T (Alternar)");
+            break;
+          case 'r': // 'R' para reset
+            e.preventDefault();
+            localStorage.removeItem("theme");
+            applyTheme("dark", "keyboard");
+            showKeyNotification("R (Reset)");
+            break;
+        }
+      }
     });
 
-    /**
-     * Event Listener para el botón de reset:
-     * Elimina la preferencia guardada y vuelve al tema por defecto
-     */
+    // Event Listeners originales
+    toggle.addEventListener("click", toggleTheme);
+    
     resetBtn.addEventListener("click", () => {
-      // Elimina el tema guardado del almacenamiento local
       localStorage.removeItem("theme");
-      // Vuelve al tema oscuro por defecto
-      applyTheme("dark");
+      applyTheme("dark", "click");
     });
 
-    // Carga el tema al iniciar la página
+    // También hacer que las teclas visuales sean clickeables
+    document.querySelectorAll('.key').forEach(key => {
+      key.addEventListener('click', function() {
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 150);
+      });
+    });
+
+    // Cargar tema al inicio
     loadTheme();
   </script>
 </body>
