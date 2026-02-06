@@ -979,8 +979,6 @@
       }, 500);
     }
 
-    // ==================== FUNCIONES ESPECÍFICAS DE TEMA ====================
-    
     function setLightTheme() {
       applyTheme('light', 'keyboard');
     }
@@ -1005,53 +1003,6 @@
         applyTheme('cinema', 'keyboard');
       }
     }
-
-    // ==================== MODO AUTOMÁTICO ====================
-    
-    function detectTimeBasedTheme() {
-      const hour = new Date().getHours();
-      // Noche: 20:00 - 6:00 (8pm - 6am)
-      // Día: 6:00 - 20:00 (6am - 8pm)
-      return hour >= 20 || hour < 6 ? 'dark' : 'light';
-    }
-    
-    function toggleAutoMode() {
-      state.autoMode = !state.autoMode;
-      
-      if (state.autoMode) {
-        // Activar modo automático
-        const theme = detectTimeBasedTheme();
-        applyTheme(theme, 'auto');
-        localStorage.setItem('auto_mode', 'true');
-        
-        // Actualizar UI
-        elements.autoModeToggle.checked = true;
-        elements.autoModeBtn.innerHTML = '<span class="btn-icon"></span><span class="btn-text">Auto ON</span>';
-        
-        // Iniciar verificador
-        startAutoModeChecker();
-        
-        createNotification(
-          'Modo Automático ACTIVADO',
-          'El tema cambiará según la hora del día',
-          ''
-        );
-      } else {
-        // Desactivar modo automático
-        localStorage.setItem('auto_mode', 'false');
-        clearInterval(window.autoModeInterval);
-        
-        // Actualizar UI
-        elements.autoModeToggle.checked = false;
-        elements.autoModeBtn.innerHTML = '<span class="btn-icon"></span><span class="btn-text">Auto</span>';
-        
-        createNotification(
-          'Modo Automático Desactivado',
-          'Control manual del tema activado',
-          ''
-        );
-      }
-    }
     
     function startAutoModeChecker() {
       if (window.autoModeInterval) clearInterval(window.autoModeInterval);
@@ -1066,7 +1017,6 @@
       }, 60000); // Revisar cada minuto
     }
 
-    // ==================== MANEJO DE SONIDOS ====================
     
     function toggleSounds() {
       state.soundsEnabled = !state.soundsEnabled;
@@ -1079,21 +1029,6 @@
         elements.soundsBtn.innerHTML = '<span class="btn-icon"></span><span class="btn-text">Sonido</span>';
         createNotification('Sonidos Desactivados', 'Modo silencioso activado', '');
       }
-    }
-
-    // ==================== ESTADÍSTICAS ====================
-    
-    function updateStats() {
-      // Actualizar hora local
-      const now = new Date();
-      elements.localTime.textContent = now.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
-      
-      // Actualizar tiempo en tema actual
-      const timeInTheme = Math.floor((Date.now() - state.themeStartTime) / 60000);
-      elements.themeTime.textContent = `${timeInTheme}min`;
     }
     
     function showStats() {
@@ -1125,7 +1060,6 @@
       }
     }
 
-    // ==================== CARGA INICIAL ====================
     
     function loadTheme() {
       // Cargar preferencias guardadas
@@ -1164,7 +1098,6 @@
       }
     }
 
-    // ==================== MANEJO DE TECLADO ====================
     
     document.addEventListener('keydown', (e) => {
       // Ignorar si estamos en un campo de texto
@@ -1181,10 +1114,6 @@
         case 'd':
           e.preventDefault();
           setLightTheme();
-          break;
-        case 't':
-          e.preventDefault();
-          toggleTheme();
           break;
         case 'c':
           e.preventDefault();
@@ -1203,18 +1132,8 @@
           e.preventDefault();
           toggleSounds();
           break;
-        case '?':
-          e.preventDefault();
-          createNotification(
-            'Atajos de Teclado',
-            'N=Noche, D=Día, T=Alternar, C=Cine, A=Auto, S=Sonidos, R=Reset',
-            '⌨️'
-          );
-          break;
       }
     });
-
-    // ==================== EVENT LISTENERS ====================
     
     elements.toggle.addEventListener('click', () => {
       toggleTheme();
@@ -1229,7 +1148,7 @@
     
     elements.resetBtn.addEventListener('click', () => {
       localStorage.clear();
-      createNotification('🔄 Sistema Reiniciado', 'Todas las preferencias fueron restablecidas', '🔄');
+      createNotification('Sistema Reiniciado', 'Todas las preferencias fueron restablecidas', '🔄');
       setTimeout(() => location.reload(), 1000);
     });
     
@@ -1239,40 +1158,7 @@
       }
     });
     
-    elements.animationsToggle.addEventListener('change', (e) => {
-      localStorage.setItem('animations', e.target.checked);
-      createNotification(
-        e.target.checked ? 'Animaciones ACTIVADAS' : 'Animaciones DESACTIVADAS',
-        e.target.checked ? 'Transiciones suaves activadas' : 'Modo de rendimiento activado',
-        '🎬'
-      );
-    });
 
-    // ==================== INICIALIZACIÓN ====================
-    
-    window.addEventListener('DOMContentLoaded', () => {
-      loadTheme();
-      createParticles();
-      
-      // Actualizar estadísticas cada minuto
-      setInterval(updateStats, 60000);
-      updateStats();
-      
-      // Crear partículas cada 30 segundos para refrescar
-      setInterval(createParticles, 30000);
-      
-      // Mostrar notificación de bienvenida
-      setTimeout(() => {
-        createNotification(
-          'Cosmos UI Pro Cargado',
-          'Usa atajos: N=Noche, D=Día, T=Alternar, C=Cine',
-          ''
-        );
-      }, 1000);
-    });
-
-    // ==================== FUNCIONES GLOBALES ====================
-    
     // Hacer funciones disponibles globalmente para los onclick
     window.setLightTheme = setLightTheme;
     window.setDarkTheme = setDarkTheme;
